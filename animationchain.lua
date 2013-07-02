@@ -3,6 +3,8 @@ animationchain=M
 
 local transition=transition
 local setmetatable=setmetatable
+local type=type
+local error=error
 
 setfenv(1,M)
 
@@ -18,6 +20,7 @@ end
 
 -- exec is the function that starts the animation from the previous call
 function chainFunctions(exec,options,runParent)
+function chainFunctions(exec,options,runParent,noanim)
 	local t={}
 
 	local mt={
@@ -44,6 +47,13 @@ function chainFunctions(exec,options,runParent)
 			return function(...)
 				if k=="start" then
 					return run()
+				end
+				if noanim then
+					error("animationchain: passing in pure functions must terminate the chain. Only call start after passing a single function into the chain")
+				end
+				if #arg==1 and type(arg[1])=="function" then
+					-- just a function has been passed in. 
+					return chainFunctions(arg[1],{},run,true)
 				end
 					
 				return anim(arg[1],arg[2],run)
