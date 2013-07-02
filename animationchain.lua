@@ -18,8 +18,11 @@ local function start(anim,options,onStart,onComplete)
 	end
 end
 
--- exec is the function that starts the animation from the previous call
-function chainFunctions(exec,options,runParent)
+-- args 
+-- exec - is the current function to execute. It is assumed to be a function that runs a Corona SDK transition 
+-- options - options for the animation (see Corona SDK). These are assumed to be the same closed over by the exec call - chainFunctions relies on being able to manipulate them for "onComplete" and "whenDone" to work
+-- runParent (optional) - run the previous function in the chain. It takes a single function as an argument. chainFunction creates this function itself
+-- noanim (optional) - true if exec does not represent a function executing a Corona SDK transition. If true, the only valid call to the chain is "start"
 function chainFunctions(exec,options,runParent,noanim)
 	local t={}
 
