@@ -10,7 +10,16 @@ setfenv(1,M)
 
 local function start(anim,options,onStart,onComplete)
 	return function()
-		options.onComplete=onComplete
+		if options.delete then
+			options.onComplete=function(obj)
+				obj:removeSelf()
+				if onComplete then
+					onComplete()
+				end
+			end
+		else
+			options.onComplete=onComplete
+		end
 		anim()
 		if onStart then
 			onStart()
@@ -21,6 +30,7 @@ end
 -- args 
 -- exec - is the current function to execute. It is assumed to be a function that runs a Corona SDK transition 
 -- options - options for the animation (see Corona SDK). These are assumed to be the same closed over by the exec call - chainFunctions relies on being able to manipulate them for "onComplete" and "whenDone" to work
+-- 		# Additional feature: if options.delete==true the subject of the animation will be deleted (obj:removeSelf() called) when the animation completes
 -- runParent (optional) - run the previous function in the chain. It takes a single function as an argument. chainFunction creates this function itself
 -- noanim (optional) - true if exec does not represent a function executing a Corona SDK transition. If true, the only valid call to the chain is "start"
 function chainFunctions(exec,options,runParent,noanim)
